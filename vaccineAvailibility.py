@@ -35,12 +35,12 @@ def notifyUser(receiver, validSlots):
 
 
 def getSlots(email, mode, dist_id, pin, age, date):
-	time.sleep(2)
-	# import ipdb; ipdb.set_trace();
+	time.sleep(5)
+	print("fetching data for id: " + email)
 	if mode == 1:
-		url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=' + pincode + '&date=' + date
+		url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=' + pin + '&date=' + date
 	else:
-		url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=' + dist_id +'&date=' + date
+		url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=' + dist_id +'&date=' + date
 	res = requests.get(
 		url = url,
 		headers= {
@@ -49,32 +49,21 @@ def getSlots(email, mode, dist_id, pin, age, date):
 	        },
 		)
 
-	result = res.json()["sessions"];
+	result = res.json()["centers"]
 	validSlots = []
+	# import ipdb; ipdb.set_trace();
 	for res in result:
-		if res['min_age_limit'] <= age:
+		if res['sessions'][0]['min_age_limit'] <= age and res['sessions'][0]['available_capacity'] > 1:
 			validSlots.append(res)
 	return validSlots
 
 
 def checkVaccineAvailibility(email, mode, dist_id, pin, age):
-	dates = next10Days()
-	full_data = []
-	for date in dates:
-		full_data.extend(getSlots(email, mode, dist_id, pin, age, date))
+	date = datetime.datetime.today().strftime('%d-%m-%Y')
+	full_data = getSlots(email, mode, dist_id, pin, age, date)
 	if(full_data):
 		print("notifying to " + email)
 		notifyUser(email, full_data)
-
-
-def next10Days():
-	base = datetime.datetime.today()
-	dates = []
-	for x in range(0, 5):
-		data = base + datetime.timedelta(days=x)
-		dates.append(data.strftime('%d-%m-%Y'))
-	return dates
-
 
 def main():
 	print("fetching details...")
@@ -95,7 +84,6 @@ def main():
 
 
 if __name__ == "__main__":
-	# main()
 	while(True):
 		main();
 		print("sleeping for 5 minutes...")

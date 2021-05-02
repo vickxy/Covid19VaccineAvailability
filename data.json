@@ -1,0 +1,12 @@
+{
+	"users":
+	[
+		{
+			"email":"foo@gmail.com",
+			"pincode": "560068",
+			"age":28,
+			"mode": 2,
+			"dist_id": "294"
+		}
+	]
+}

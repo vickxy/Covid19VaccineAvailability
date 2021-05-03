@@ -51,10 +51,18 @@ def getSlots(email, mode, dist_id, pin, age, date):
 
 	result = res.json()["centers"]
 	validSlots = []
-	# import ipdb; ipdb.set_trace();
 	for res in result:
-		if res['sessions'][0]['min_age_limit'] <= age and res['sessions'][0]['available_capacity'] > 1:
-			validSlots.append(res)
+		data = {}
+		data['name'] = res['name']
+		data['sessions'] = []
+		for re in res['sessions']:
+			# if re['min_age_limit'] <= age:
+			# 	print(re['available_capacity'])
+			# 	print(re['date'])
+			if re['min_age_limit'] <= age and re['available_capacity'] > 1:
+				data['sessions'].append(re)
+				validSlots.append(data)
+	#import ipdb; ipdb.set_trace();
 	return validSlots
 
 
@@ -86,5 +94,5 @@ def main():
 if __name__ == "__main__":
 	while(True):
 		main();
-		print("sleeping for 5 minutes...")
-		time.sleep(300);
+		print("sleeping for 4 minutes...")
+		time.sleep(240);

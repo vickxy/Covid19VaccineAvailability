@@ -38,10 +38,12 @@ def notifyUser(receiver, validSlots):
 
 def getSlots(mode, dist_id, pin, date):
     time.sleep(5)
-    # print(f"fetching data for {date} and next 7 days")
+
     if mode == 1:
+        print(f"Fetching data for pincode {pin}")
         url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=' + pin + '&date=' + date
     else:
+        print(f"Fetching data for dist_id {dist_id}")
         url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id=' + dist_id + '&date=' + date
     res = requests.get(
         url=url,
@@ -71,8 +73,10 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
     date = datetime.datetime.today().strftime('%d-%m-%Y')
     full_data = getSlots(mode, dist_id, pin, date)
     if not full_data:
+        print(f"No slots available for district {dist_id} and pin {pin}")
         return
-    # print(f"Vaccine found at {len(full_data)} places")
+    print(f"Vaccine found at {len(full_data)} places")
+
     # Check for all the users
     for user in users:
         user_age = user.get('age')

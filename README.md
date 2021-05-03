@@ -1,4 +1,4 @@
-# Covid19VaccineAvailibility
+# Covid19VaccineAvailability
 
 We are looking into COWIN portal after every 5 minutes to check the availibility based on your State, District/Pincode and Age
 ## To run this script follow the steps given below

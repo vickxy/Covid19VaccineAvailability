@@ -2,37 +2,9 @@
 	"users":
 	[
 		{
-			"email":"foo@gmail.com",
-			"pincode": "560068",
-			"age":63,
-			"mode": 2,
-			"dist_id": "294"
-		},
-		{
-			"email":"foooo@gmail.com",
+			"email":"star.vikesh@gmail.com",
 			"pincode": "560068",
 			"age":28,
-			"mode": 1,
-			"dist_id": "294"
-		},
-		{
-			"email":"foooo@gmail.com",
-			"pincode": "560068",
-			"age":63,
-			"mode": 2,
-			"dist_id": "294"
-		},
-		{
-			"email":"foooo@gmail.com",
-			"pincode": "560068",
-			"age":63,
-			"mode": 1,
-			"dist_id": "294"
-		},
-		{
-			"email":"foooo@gmail.com",
-			"pincode": "560068",
-			"age":63,
 			"mode": 2,
 			"dist_id": "294"
 		}

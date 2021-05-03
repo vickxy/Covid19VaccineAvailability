@@ -115,7 +115,7 @@ def main(user_data):
             checkVaccineAvailibility(mode, dist_id, pin, users)
     except Exception as e:
         print("Error ")
-        print(format_exc())
+        # print(format_exc())
 
 
 if __name__ == "__main__":
@@ -124,4 +124,4 @@ if __name__ == "__main__":
             user_data = json.load(f)
         main(user_data)
         print("sleeping for 4 minutes...")
-        time.sleep(60)
+        time.sleep(240)

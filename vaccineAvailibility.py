@@ -3,6 +3,7 @@ import json
 import smtplib
 import time
 from collections import defaultdict
+from copy import deepcopy
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from traceback import format_exc
@@ -40,7 +41,7 @@ def notifyUser(receiver, validSlots):
 
 def getSlots(mode, dist_id, pin, date):
     # time.sleep(5)
-    print(f"fetching data for {date} and next 7 days")
+    print(f"Fetching data for {date} and next 7 days")
     if mode == 1:
         url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=' + pin + '&date=' + date
     else:
@@ -78,19 +79,27 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
     date = datetime.datetime.today().strftime('%d-%m-%Y')
     full_data = getSlots(mode, dist_id, pin, date)
     if not full_data:
+        print(f"No slots available for district {dist_id} and pin {pin}")
         return
     print(f"Vaccine found at {len(full_data)} places")
+    # Check for all the users
     for user in users:
         user_age = user.get('age')
-        filtered_data = [
-            data for data in full_data
-            if any(session['min_age_limit'] <= user_age
-                   for session in data.get('sessions', []))
-        ]
+        filtered_data = []
+        for data in full_data:
+            valid_session = []
+            for session in data.get('sessions', []):
+                if int(session['min_age_limit']) <= user_age:
+                    valid_session.append(session)
+        if valid_session:
+            data_copy = deepcopy(data)
+            data_copy['sessions'] = valid_session
+            filtered_data.append(data_copy)
+
         if not filtered_data:
-            return
+            continue
         print(
-            f"User with age {user_age} vaccine is available at {len(full_data)} places")
+            f"User with age {user_age} vaccine is available at {len(filtered_data)} places")
         email = user['email']
 
         print("notifying to " + email)

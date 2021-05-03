@@ -97,7 +97,7 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
         print(
             f"User with age {user_age} vaccine is available at {len(filtered_data)} places and notifying to {email}")
 
-        #notifyUser(email, filtered_data)
+        notifyUser(email, filtered_data)
 
 
 def main(user_data):

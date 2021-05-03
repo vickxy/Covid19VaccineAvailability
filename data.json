@@ -7,6 +7,13 @@
 			"age":28,
 			"mode": 2,
 			"dist_id": "294"
+		},
+		{
+			"email":"foooo@gmail.com",
+			"pincode": "560068",
+			"age":63,
+			"mode": 1,
+			"dist_id": "294"
 		}
 	]
 }

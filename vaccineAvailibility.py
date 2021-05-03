@@ -12,9 +12,6 @@ import requests
 
 with open('cred.json', 'r') as cred_file:
     cred = json.load(cred_file)
-with open('data.json', 'r') as f:
-    user_data = json.load(f)
-
 
 def notifyUser(receiver, validSlots):
     sender = cred["sender"]
@@ -40,8 +37,8 @@ def notifyUser(receiver, validSlots):
 
 
 def getSlots(mode, dist_id, pin, date):
-    # time.sleep(5)
-    print(f"fetching data for {date} and next 7 days")
+    time.sleep(5)
+    # print(f"fetching data for {date} and next 7 days")
     if mode == 1:
         url = 'https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode=' + pin + '&date=' + date
     else:
@@ -58,20 +55,15 @@ def getSlots(mode, dist_id, pin, date):
     validSlots = []
     for res in result:
         data = {}
-        # data = {f: v for k, v in res.items()}
         data['name'] = res['name']
         data['district_name'] = res['district_name']
         data['block_name'] = res['block_name']
         data['pincode'] = res['pincode']
         data['sessions'] = []
         for re in res['sessions']:
-            # if re['min_age_limit'] <= age:
-            # 	print(re['available_capacity'])
-            # 	print(re['date'])
             if re['available_capacity'] >= 1:
                 data['sessions'].append(re)
                 validSlots.append(data)
-    # import ipdb; ipdb.set_trace();
     return validSlots
 
 
@@ -80,7 +72,7 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
     full_data = getSlots(mode, dist_id, pin, date)
     if not full_data:
         return
-    print(f"Vaccine found at {len(full_data)} places")
+    # print(f"Vaccine found at {len(full_data)} places")
     # Check for all the users
     for user in users:
         user_age = user.get('age')
@@ -90,22 +82,21 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
             for session in data.get('sessions', []):
                 if int(session['min_age_limit']) <= user_age:
                     valid_session.append(session)
-        if valid_session:
-            data_copy = deepcopy(data)
-            data_copy['sessions'] = valid_session
-            filtered_data.append(data_copy)
+            if valid_session:
+                data_copy = deepcopy(data)
+                data_copy['sessions'] = valid_session
+                filtered_data.append(data_copy)
 
         if not filtered_data:
             continue
-        print(
-            f"User with age {user_age} vaccine is available at {len(filtered_data)} places")
         email = user['email']
+        print(
+            f"User with age {user_age} vaccine is available at {len(filtered_data)} places and notifying to {email}")
 
-        print("notifying to " + email)
-        notifyUser(email, filtered_data)
+        #notifyUser(email, filtered_data)
 
 
-def main():
+def main(user_data):
     print("fetching details...")
     try:
         region_user = defaultdict(lambda: [])
@@ -125,6 +116,8 @@ def main():
 
 if __name__ == "__main__":
     while (True):
-        main()
+        with open('data.json', 'r') as f:
+            user_data = json.load(f)
+        main(user_data)
         print("sleeping for 4 minutes...")
-        time.sleep(240)
+        time.sleep(60)

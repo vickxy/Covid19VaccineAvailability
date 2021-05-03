@@ -67,8 +67,7 @@ def getSlots(mode, dist_id, pin, date):
             # if re['min_age_limit'] <= age:
             # 	print(re['available_capacity'])
             # 	print(re['date'])
-            if re['available_capacity'] > 1:
-                # if re['min_age_limit'] <= age and re['available_capacity'] > 1:
+            if re['available_capacity'] >= 1:
                 data['sessions'].append(re)
                 validSlots.append(data)
     # import ipdb; ipdb.set_trace();

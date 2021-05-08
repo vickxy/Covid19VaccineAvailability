@@ -49,12 +49,19 @@ def getSlots(mode, dist_id, pin, date):
         url=url,
         headers={
             'accept': 'application/json',
-            'Accept-Language': 'hi_IN'
+            'Accept-Language': 'hi_IN',
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
         },
     )
 
-    result = res.json()["centers"]
     validSlots = []
+    try:
+        if "centers" not in res.json():
+            return validSlots
+    except:
+        print(res)
+        return validSlots
+    result = res.json()["centers"]
     for res in result:
         data = {}
         data['name'] = res['name']
@@ -105,9 +112,14 @@ def main(user_data):
     try:
         region_user = defaultdict(lambda: [])
         for i in user_data['users']:
-            pin = i['pincode']
+            pin = '560068'
+            dist_id = 294
             mode = i['mode']
-            dist_id = i['dist_id']
+            if mode ==1:
+                pin = i['pincode']
+            else:
+                dist_id = i['dist_id']
+
             region_user[(mode, dist_id, pin)].append(i)
 
         for region, users in region_user.items():
@@ -123,5 +135,5 @@ if __name__ == "__main__":
         with open('data.json', 'r') as f:
             user_data = json.load(f)
         main(user_data)
-        print("sleeping for 4 minutes...")
-        time.sleep(60)
+        print("sleeping for 2 minutes...")
+        time.sleep(120)

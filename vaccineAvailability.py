@@ -12,17 +12,23 @@ import requests
 
 with open('cred.json', 'r') as cred_file:
     cred = json.load(cred_file)
+sender = cred["sender"]
+auth = cred["auth"]
+session = smtplib.SMTP('smtp.gmail.com', 587)
+#session.starttls()
+#session.login(sender, auth)
 
 def notifyUser(receiver, validSlots):
-    sender = cred["sender"]
-    auth = cred["auth"]
+    #sender = cred["sender"]
+    #auth = cred["auth"]
 
     mail_content = json.dumps(validSlots, indent=1)
     message = MIMEMultipart()
     message['From'] = sender
     message['To'] = receiver
-    message['Subject'] = 'Vaccine slots availablity'
+    message['Subject'] = 'Vaccine slots availablity | Please unsubscribe once you get the slots'
     message.attach(MIMEText(mail_content, 'plain'))
+    message.attach(MIMEText(u'<a href="https://vickxy.github.io/vaccine-availability-covid19/">https://vickxy.github.io/vaccine-availability-covid19/</a>','html'))
 
     try:
         session = smtplib.SMTP('smtp.gmail.com', 587)
@@ -50,13 +56,14 @@ def getSlots(mode, dist_id, pin, date):
         headers={
             'accept': 'application/json',
             'Accept-Language': 'hi_IN',
-            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36',
+            'X-Forwarded-For': '122.171.172.178'
         },
     )
-
     validSlots = []
+    # print(res.json)
     try:
-        if "centers" not in res.json():
+        if not "centers" in res.json():
             return validSlots
     except:
         print(res)
@@ -92,7 +99,11 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
             valid_session = []
             for session in data.get('sessions', []):
                 if int(session['min_age_limit']) <= user_age:
-                    valid_session.append(session)
+                    if 'vaccine' in user:
+                        if user.get('vaccine').lower() == session.get('vaccine').lower():
+                            valid_session.append(session)
+                    else:
+                        valid_session.append(session)
             if valid_session:
                 data_copy = deepcopy(data)
                 data_copy['sessions'] = valid_session
@@ -115,11 +126,13 @@ def main(user_data):
             pin = '560068'
             dist_id = 294
             mode = i['mode']
+            #import ipdb; ipdb.set_trace();
             if mode ==1:
-                pin = i['pincode']
+                pin =i['pincode']
             else:
+                if 'dist_id' not in i:
+                    continue
                 dist_id = i['dist_id']
-
             region_user[(mode, dist_id, pin)].append(i)
 
         for region, users in region_user.items():
@@ -135,5 +148,5 @@ if __name__ == "__main__":
         with open('data.json', 'r') as f:
             user_data = json.load(f)
         main(user_data)
-        print("sleeping for 2 minutes...")
-        time.sleep(120)
+        print("sleeping for 7 minutes...")
+        time.sleep(420)

@@ -1,12 +1,31 @@
 {
-	"users":
-	[
-		{
-			"email":"star.vikesh@gmail.com",
-			"pincode": "560068",
-			"age":28,
-			"mode": 2,
-			"dist_id": "294"
-		}
-	]
+ "users": [
+    {
+       "name": "Vikesh",
+       "notifyOn": "telegram",
+       "email": "1101376244",
+       "age": 18,
+       "vaccinePref": "",
+       "mode": 2,
+       "dist_id": "294"
+    },
+    {
+       "name": "Aditya",
+       "notifyOn": "telegram",
+       "email": "1039875108",
+       "age": 18,
+       "vaccinePref": "",
+       "mode": 2,
+       "dist_id": "294"
+    },
+    {
+       "name": "Aditya",
+       "notifyOn": "email",
+       "email": "user@gmail.com",
+       "age": 18,
+       "vaccinePref": "",
+       "mode": 2,
+       "dist_id": "294"
+    }
+  ]
 }

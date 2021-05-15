@@ -16,7 +16,7 @@ sender = cred["sender"]
 auth = cred["auth"]
 session = smtplib.SMTP('smtp.gmail.com', 587)
 
-bot_token = '1865743998:AAFudOPsyhuqvuoraRC38M3tJ4T0aKF_2dc'
+bot_token = ''
 
 def notify(user, validSlots):
     if 'notifyOn' in user and user.get('notifyOn') == 'telegram':

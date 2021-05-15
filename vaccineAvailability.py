@@ -15,17 +15,30 @@ with open('cred.json', 'r') as cred_file:
 sender = cred["sender"]
 auth = cred["auth"]
 session = smtplib.SMTP('smtp.gmail.com', 587)
-#session.starttls()
-#session.login(sender, auth)
 
-def notifyUser(receiver, validSlots):
-    #sender = cred["sender"]
-    #auth = cred["auth"]
+bot_token = '1865743998:AAFudOPsyhuqvuoraRC38M3tJ4T0aKF_2dc'
 
+def notify(user, validSlots):
+    if 'notifyOn' in user and user.get('notifyOn') == 'telegram':
+        notifyUserViaTelegram(user, validSlots)
+    else:
+        notifyUserViaEmail(user.get('email'), validSlots)
+
+
+def notifyUserViaTelegram(user, validSlots):
+    chat_id = user.get('email')
+    name = user.get('name')
+    bot_message = f"Hi {name}, \nVaccine available at {len(validSlots)} places, \none place is \n" + json.dumps(validSlots[0], indent=1)
+    send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + chat_id + '&text=' + bot_message
+    # send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + chat_id + '&text=' + "hello"
+    response = requests.get(send_text)
+    #print(response.json())
+
+def notifyUserViaEmail(email, validSlots):
     mail_content = json.dumps(validSlots, indent=1)
     message = MIMEMultipart()
     message['From'] = sender
-    message['To'] = receiver
+    message['To'] = email
     message['Subject'] = 'Vaccine slots availablity | Please unsubscribe once you get the slots'
     message.attach(MIMEText(mail_content, 'plain'))
     message.attach(MIMEText(u'<a href="https://vickxy.github.io/vaccine-availability-covid19/">https://vickxy.github.io/vaccine-availability-covid19/</a>','html'))
@@ -35,7 +48,7 @@ def notifyUser(receiver, validSlots):
         session.starttls()
         session.login(sender, auth)
         text = message.as_string()
-        session.sendmail(sender, receiver, text)
+        session.sendmail(sender, email, text)
         session.quit()
     except Exception as e:
         print("Error: unable to send email")
@@ -93,29 +106,31 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
 
     # Check for all the users
     for user in users:
-        user_age = user.get('age')
-        filtered_data = []
-        for data in full_data:
-            valid_session = []
-            for session in data.get('sessions', []):
-                if int(session['min_age_limit']) <= user_age:
-                    if 'vaccine' in user:
-                        if user.get('vaccine').lower() == session.get('vaccine').lower():
+        try:
+            user_age = user.get('age')
+            filtered_data = []
+            for data in full_data:
+                valid_session = []
+                for session in data.get('sessions', []):
+                    if int(session['min_age_limit']) <= user_age:
+                        if 'vaccine' in user:
+                            if user.get('vaccine').lower() == session.get('vaccine').lower():
+                                valid_session.append(session)
+                        else:
                             valid_session.append(session)
-                    else:
-                        valid_session.append(session)
-            if valid_session:
-                data_copy = deepcopy(data)
-                data_copy['sessions'] = valid_session
-                filtered_data.append(data_copy)
+                if valid_session:
+                    data_copy = deepcopy(data)
+                    data_copy['sessions'] = valid_session
+                    filtered_data.append(data_copy)
 
-        if not filtered_data:
-            continue
-        email = user['email']
-        print(
-            f"User with age {user_age} vaccine is available at {len(filtered_data)} places and notifying to {email}")
+            if not filtered_data:
+                continue
+            print(
+                f"User with age {user_age} vaccine is available at {len(filtered_data)} places and notifying to {user['email']}")
 
-        notifyUser(email, filtered_data)
+            notify(user, filtered_data)
+        except Exception as e:
+            print(f"error for user {user.get('name')}:  {e}")
 
 
 def main(user_data):
@@ -126,7 +141,6 @@ def main(user_data):
             pin = '560068'
             dist_id = 294
             mode = i['mode']
-            #import ipdb; ipdb.set_trace();
             if mode ==1:
                 pin =i['pincode']
             else:

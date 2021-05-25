@@ -16,7 +16,7 @@ sender = cred["sender"]
 auth = cred["auth"]
 session = smtplib.SMTP('smtp.gmail.com', 587)
 
-bot_token = ''
+bot_token = '1865743998:AAFudOPsyhuqvuoraRC38M3tJ4T0aKF_2dc'
 
 def notify(user, validSlots):
     if 'notifyOn' in user and user.get('notifyOn') == 'telegram':
@@ -28,11 +28,11 @@ def notify(user, validSlots):
 def notifyUserViaTelegram(user, validSlots):
     chat_id = user.get('email')
     name = user.get('name')
-    bot_message = f"Hi {name}, \nVaccine available at {len(validSlots)} places, \none place is \n" + json.dumps(validSlots[0], indent=1)
+    bot_message = f"Hi {name}, \nYou can select dose type as well \nVaccine available at {len(validSlots)} places, \none place is \n" + json.dumps(validSlots[0], indent=1)
     send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + chat_id + '&text=' + bot_message
     # send_text = 'https://api.telegram.org/bot' + bot_token + '/sendMessage?chat_id=' + chat_id + '&text=' + "hello"
     response = requests.get(send_text)
-    #print(response.json())
+    # print(response.json())
 
 def notifyUserViaEmail(email, validSlots):
     mail_content = json.dumps(validSlots, indent=1)
@@ -108,11 +108,12 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
     for user in users:
         try:
             user_age = user.get('age')
+            dose_type = user.get('dose') if 'dose' in user else "available_capacity";
             filtered_data = []
             for data in full_data:
                 valid_session = []
                 for session in data.get('sessions', []):
-                    if int(session['min_age_limit']) <= user_age:
+                    if int(session['min_age_limit']) <= user_age and session[dose_type] >= 1:
                         if 'vaccine' in user:
                             if user.get('vaccine').lower() == session.get('vaccine').lower():
                                 valid_session.append(session)
@@ -127,7 +128,7 @@ def checkVaccineAvailibility(mode, dist_id, pin, users):
                 continue
             print(
                 f"User with age {user_age} vaccine is available at {len(filtered_data)} places and notifying to {user['email']}")
-
+            # print(filtered_data)
             notify(user, filtered_data)
         except Exception as e:
             print(f"error for user {user.get('name')}:  {e}")
